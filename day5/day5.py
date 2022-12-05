@@ -1,5 +1,3 @@
-import math
-
 stack1 = ['G', 'D', 'V', 'Z', 'J', 'S', 'B']
 stack2 = ['Z', 'S', 'M', 'G', 'V', 'P']
 stack3 = ['C', 'L', 'B', 'S', 'W', 'T', 'Q', 'F']
@@ -20,6 +18,7 @@ def solution():
             quantity = int(details[1])
             source = int(details[3])
             dest = int(details[5])
+            quantity, source, dest = map(int, [quantity, source, dest])
             # old crane
             # for count in range(quantity):
             #     stacks[dest-1].append(stacks[source-1].pop())
@@ -33,4 +32,3 @@ def solution():
 solution()
 for stack in stacks:
     print(stack[-1], end="")
-
