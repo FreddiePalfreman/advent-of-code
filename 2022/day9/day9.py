@@ -1,6 +1,7 @@
-import numpy as np
-
 def generate_grid():
+    """
+    Generates a grid of the size needed to fit the path of the rope.
+    """
     x = 0
     y = 0
     x_coords = []
@@ -32,129 +33,47 @@ def generate_grid():
         return grid
 
 def print_grid(grid):
+    """
+    Prints the grid in a readable format. Any place that is 'h' is replaced with '#',
+    as the h means that it is hiding a space visited by the end of the rope.
+    """
     for row in grid:
-        print(" ".join(row))
+        to_print = []
+        for col in row:
+            if col == "h":
+                col = "#"
+            to_print.append(col)
+        print(''.join(to_print))
     print()
 
-def get_start_coordinates():
+def get_start_coordinates(grid):
+    """
+    Returns the starting coordinates on the grid.
+    """
     start = []
     for row in grid:
         for col in row:
             if col == "S":
                 start = [row.index(col), grid.index(row)]
-    return start
+    return start[:]
 
-def get_head_tail_coordinates(grid):
-    head = []
-    tail = []
-    start = []
-    for row in grid:
-        for col in row:
-            if col == "H":
-                head = [row.index(col), grid.index(row)]
-            if col == "T":
-                tail = [row.index(col), grid.index(row)]
-            if col == "S":
-                start = [row.index(col), grid.index(row)]
-    if head == []:
-        head = start[:]
-    if tail == []:
-        tail = start[:]
+def simulate_motions(grid, rope):
+    """
+    Given a rope containing the knot names and their start coordinates, this
+    simulates the movement of the rope based on the motions in the input file.
 
-    return head, tail
+    The head of the rope is moved first, then the other knots are moved to
+    follow the head.
 
-def simulate_motions(grid):
-    head, tail = get_head_tail_coordinates(grid)
-    with open("2022/day9/input.txt", "r") as f:
-        motions = f.read().splitlines()
-        for motion in motions:
-            print(f"=== {motion} ===")
-            motion = motion.split(" ")
-            for count in range(int(motion[1])):
-                if grid[rope[count-1][1][0]][rope[count-1][1][0]] == "h":
-                    grid[rope[count-1][1][0]][rope[count-1][1][0]] = "#"
-                if grid[rope[count-1][1][0]][rope[count-1][1][0]] not in ["S", "h", "#"]:
-                    grid[rope[count-1][1][0]][rope[count-1][1][0]] = "."
-                if grid[rope[count][1][1]][rope[count][1][0]] != "S":
-                    grid[rope[count][1][1]][rope[count][1][0]] = "#"
-
-                if motion[0] == "L":
-                    rope[count-1][1][0] -= 1
-                elif motion[0] == "R":
-                    rope[count-1][1][0] += 1
-                elif motion[0] == "U":
-                    rope[count-1][1][0] -= 1
-                elif motion[0] == "D":
-                    rope[count-1][1][0] += 1
-                if grid[rope[count-1][1][0]][rope[count-1][1][0]] == "#":
-                    grid[rope[count-1][1][0]][rope[count-1][1][0]] = "h"
-                else:
-                    grid[rope[count-1][1][0]][rope[count-1][1][0]] = "H"
-
-                # if the head is ever two steps U, D, L or R from the tail, the tail must also move one step in that direction
-                # otherwise, if the head and tail aren't touching and aren't in the same row or column, the tail always moves one step diagonally to keep up
-                # same column, different rows
-                if abs(rope[count-1][1][0] - rope[count][1][0]) == 2 and abs(rope[count-1][1][0] - rope[count][1][1]) == 0:
-                    if rope[count-1][1][0] > rope[count][1][0]:
-                        rope[count][1][0] += 1
-                    else:
-                        rope[count][1][0] -= 1
-
-                # same row, different columns
-                elif abs(rope[count-1][1][0] - rope[count][1][0]) == 0 and abs(rope[count-1][1][0] - rope[count][1][1]) == 2:
-                    if rope[count-1][1][0] > rope[count][1][1]:
-                        rope[count][1][1] += 1
-                    else:
-                        rope[count][1][1] -= 1
-
-                elif abs(rope[count-1][1][0] - rope[count][1][0]) == 2 and abs(rope[count-1][1][0] - rope[count][1][1]) == 1:
-                    if rope[count-1][1][0] > rope[count][1][0]:
-                        rope[count][1][0] += 1
-                    else:
-                        rope[count][1][0] -= 1
-                    if rope[count-1][1][0] > rope[count][1][1]:
-                        rope[count][1][1] += 1
-                    else:
-                        rope[count][1][1] -= 1
-                elif abs(rope[count-1][1][0] - rope[count][1][0]) == 1 and abs(rope[count-1][1][0] - rope[count][1][1]) == 2:
-                    if rope[count-1][1][0] > rope[count][1][0]:
-                        rope[count][1][0] += 1
-                    else:
-                        rope[count][1][0] -= 1
-                    if rope[count-1][1][0] > rope[count][1][1]:
-                        rope[count][1][1] += 1
-                    else:
-                        rope[count][1][1] -= 1
-
-                if grid[rope[count][1][1]][rope[count][1][0]] != "S":
-                    grid[rope[count][1][1]][rope[count][1][0]] = "T"
-
-                #print_grid(grid)
-
-        grid[rope[count][1][1]][rope[count][1][0]] = "#"
-        if grid[rope[count-1][1][0]][rope[count-1][1][0]] == "h":
-            grid[rope[count-1][1][0]][rope[count-1][1][0]] = "#"
-        print(f"\n\n FINAL GRID:")
-        print_grid(grid)
-
-        count = 0
-        for row in grid:
-            for col in row:
-                if col in ["#", "S"]:
-                    count += 1
-        print(f"count: {count}")
-
-def simulate_motions_two(grid, knots):
-    rope = [["H", get_start_coordinates()]]
-    for count in range(1, knots):
-        rope.append([str(count), get_start_coordinates()])
-
+    The tail of the rope marks spaces it has visited with a #, and a final version
+    of the grid is printed, with a count of #s.
+    """
     with open("2022/day9/input.txt", "r") as f:
         motions = f.read().splitlines()
         for motion in motions:
             motion = motion.split(" ")
             for count in range(int(motion[1])):
-
+                # remove knots from the grid as they are about to be moved.
                 for knot in rope:
                     compare = grid[knot[1][1]][knot[1][0]]
                     if compare not in ["S", "#"]:
@@ -173,12 +92,13 @@ def simulate_motions_two(grid, knots):
                 elif motion[0] == "D":
                     rope[0][1][1] += 1
 
+                # if the head will be covering a trailing knot space, mark it in lowercase
                 if grid[rope[0][1][1]][rope[0][1][0]] == "#":
                     grid[rope[0][1][1]][rope[0][1][0]] = "h"
                 else:
                     grid[rope[0][1][1]][rope[0][1][0]] = rope[0][0]
 
-                # move the other knots
+                # move the other knots behind the head
                 for count in range(1, len(rope)):
                     # same row, different columns
                     if abs(rope[count-1][1][0] - rope[count][1][0]) == 2 and abs(rope[count-1][1][1] - rope[count][1][1]) == 0:
@@ -236,7 +156,7 @@ def simulate_motions_two(grid, knots):
                     if grid[rope[count][1][1]][rope[count][1][0]] not in ["S", "#", "h"]:
                         grid[rope[count][1][1]][rope[count][1][0]] = symbol
 
-            print_grid(grid)
+        print_grid(grid)
 
     count = 0
     for row in grid:
@@ -248,4 +168,12 @@ def simulate_motions_two(grid, knots):
 
 if __name__ == "__main__":
     grid = generate_grid()
-    simulate_motions_two(grid, 10)
+    start_position = get_start_coordinates(grid)
+
+    rope1 = [["H", start_position[:]], ["T", start_position[:]]]
+
+    rope2 = [["H", get_start_coordinates(grid)]]
+    for count in range(1, 10):
+        rope2.append([str(count), get_start_coordinates(grid)])
+
+    simulate_motions(grid, rope2)
