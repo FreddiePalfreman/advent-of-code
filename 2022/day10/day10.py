@@ -13,30 +13,28 @@ def render_crt(crt, x, cycle):
             crt[row][drawing_position] = " . "
     return crt
 
-def run_instructions(registers):
+def run_instructions(cycles):
     with open("2022/day10/input.txt", "r") as f:
         instructions = f.read().splitlines()
         for count in range(0, len(instructions)):
             instructions[count] = instructions[count].split(" ")
 
-        registers_during_cycles = registers
         crt = [["."] * 40 for i in range(6)]
         for count in range(0, len(instructions)):
             if (instructions[count-1][0]) == "noop":
-                registers_during_cycles.append(registers_during_cycles[-1])
-                crt = render_crt(crt, registers_during_cycles[-1], len(registers_during_cycles)-2)
+                cycles.append(cycles[-1])
+                crt = render_crt(crt, cycles[-1], len(cycles)-2)
             if instructions[count][0] == "addx":
                 if count >= 1:
-                    registers_during_cycles.append(registers_during_cycles[-1])
-                    crt = render_crt(crt, registers_during_cycles[-1], len(registers_during_cycles)-2)
+                    cycles.append(cycles[-1])
+                    crt = render_crt(crt, cycles[-1], len(cycles)-2)
                 else:
-                    registers_during_cycles.append(registers_during_cycles[-1])
-                    crt = render_crt(crt, registers_during_cycles[-1], len(registers_during_cycles)-2)
-                registers_during_cycles.append((registers_during_cycles[-1])+(int(instructions[count][1])))
-                crt = render_crt(crt, registers_during_cycles[-1], len(registers_during_cycles)-2)
+                    cycles.append(cycles[-1])
+                    crt = render_crt(crt, cycles[-1], len(cycles)-2)
+                cycles.append((cycles[-1])+(int(instructions[count][1])))
+                crt = render_crt(crt, cycles[-1], len(cycles)-2)
 
-    print_crt(crt)
-    return registers_during_cycles
+    return cycles, crt
 
 def calculate_signal_strengths(registers):
     signal_strengths = []
@@ -46,9 +44,10 @@ def calculate_signal_strengths(registers):
 
 if __name__ == "__main__":
     registers = [1]
-    registers = run_instructions(registers)
+    registers, crt = run_instructions(registers)
     signal_strengths = calculate_signal_strengths(registers)
     strength = 0
     for i in [20, 60, 100, 140, 180, 220]:
         strength += signal_strengths[i]
     print(f"Strength: {strength}")
+    print_crt(crt)
