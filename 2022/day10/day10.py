@@ -3,14 +3,14 @@ def print_crt(crt):
         print("".join(row), end="\n")
 
 def render_crt(crt, x, cycle):
-    row = cycle//40
-    drawing_position = cycle%40
+    row = cycle // 40
+    drawing_position = cycle % 40
     if row <= 5:
-        if (-1 <= x <= 40):
+        if -1 <= x <= 40:
             if (x-1) <= drawing_position <= (x+1):
                 crt[row][drawing_position] = " ■ "
-                return crt
-            crt[row][drawing_position] = " . "
+            else:
+                crt[row][drawing_position] = " . "
     return crt
 
 def run_instructions(cycles):
@@ -25,12 +25,8 @@ def run_instructions(cycles):
                 cycles.append(cycles[-1])
                 crt = render_crt(crt, cycles[-1], len(cycles)-2)
             if instructions[count][0] == "addx":
-                if count >= 1:
-                    cycles.append(cycles[-1])
-                    crt = render_crt(crt, cycles[-1], len(cycles)-2)
-                else:
-                    cycles.append(cycles[-1])
-                    crt = render_crt(crt, cycles[-1], len(cycles)-2)
+                cycles.append(cycles[-1])
+                crt = render_crt(crt, cycles[-1], len(cycles)-2)
                 cycles.append((cycles[-1])+(int(instructions[count][1])))
                 crt = render_crt(crt, cycles[-1], len(cycles)-2)
 
