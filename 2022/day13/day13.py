@@ -39,7 +39,7 @@ def recursively_compare(left, right):
         else:
             return True
 
-def compare_pairs():
+def part_one():
     sum_of_correct_indices = 0
     with open("2022/day13/input.txt", "r") as f:
         lines = f.read().splitlines()
@@ -58,5 +58,23 @@ def compare_pairs():
 
     print(f"sum_of_correct_indices: {sum_of_correct_indices}")
 
+def part_two():
+    lists = [[[2]], [[6]]]
+    with open("2022/day13/input.txt", "r") as f:
+        lines = f.read().splitlines()
+        for count in range(0, len(lines)-1, 3):
+            left = ast.literal_eval(lines[count])
+            right = ast.literal_eval(lines[count+1])
+            lists.append([[el] for el in left])
+            lists.append([[el] for el in right])
+
+    # bubble sort lists
+    for count in range(len(lists)):
+        for count2 in range(len(lists) - count - 1):
+            if recursively_compare(lists[count2], lists[count2+1]) == False:
+                lists[count2], lists[count2+1] = lists[count2+1], lists[count2]
+    print(f"Product of divider packets: {(lists.index([[2]])+1)*(lists.index([[6]])+1)}")
+
 if __name__ == "__main__":
-    compare_pairs()
+    # part_one()
+    part_two()
